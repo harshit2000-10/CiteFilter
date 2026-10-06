@@ -1114,14 +1114,15 @@ def demo():
     assert sem.shape == (3, 3) and np.allclose(sem[0], [1, 0, 1]) and np.allclose(sem[1], [0, 1, 1], atol=1e-6), sem
     assert np.allclose(sem[2], [0.7071] * 3, atol=1e-3), sem
 
-    with tempfile.NamedTemporaryFile("w", suffix=".env") as tmp:
-        tmp.write("# comment\nexport LLM_BASE_URL = http://x/v1/\nLLM_MODEL='m'\nLLM_API_KEY=k=1\n\njunk\n")
-        tmp.flush()
-        assert read_env_file(tmp.name) == {"LLM_BASE_URL": "http://x/v1/", "LLM_MODEL": "m", "LLM_API_KEY": "k=1"}
+    with tempfile.TemporaryDirectory() as folder:  # a folder, not a temp file: Windows cannot reopen an open temp file
+        env_file = Path(folder) / "test.env"
+        env_file.write_text("# comment\nexport LLM_BASE_URL = http://x/v1/\nLLM_MODEL='m'\nLLM_API_KEY=k=1\n\njunk\n",
+                            encoding="utf-8")
+        assert read_env_file(env_file) == {"LLM_BASE_URL": "http://x/v1/", "LLM_MODEL": "m", "LLM_API_KEY": "k=1"}
         env, os.environ = os.environ, {"LLM_MODEL": "from-env"}
         try:
-            assert llm_config(file=tmp.name) == ("http://x/v1", "from-env", "k=1")
-            assert llm_config(model="from-cli", file=tmp.name) == ("http://x/v1", "from-cli", "k=1")
+            assert llm_config(file=env_file) == ("http://x/v1", "from-env", "k=1")
+            assert llm_config(model="from-cli", file=env_file) == ("http://x/v1", "from-cli", "k=1")
             os.environ = {}
             assert llm_config() is None and llm_config(url="http://y", model="m") == ("http://y", "m", "")
         finally:
