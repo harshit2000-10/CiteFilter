@@ -1,0 +1,17 @@
+# local environments and build output
+__pycache__/
+.venv/
+poppler/
+build/
+dist/
+*.spec
+
+# private settings (holds an API key)
+llm.env
+
+# reports contain figures cropped from papers and addresses read from them: keep them local
+example_report/
+*_report/
+logo/ui_preview.jpg
+
+.DS_Store

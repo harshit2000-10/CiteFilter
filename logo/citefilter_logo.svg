@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 256" role="img" aria-label="CiteFilter">
+<rect width="256" height="256" rx="56" fill="#17324D"/>
+<path d="M46 52 H210 L150 134 V198 L106 178 V134 Z" fill="#fff" stroke="#fff" stroke-width="12" stroke-linejoin="round"/>
+<g fill="#17324D"><circle cx="108" cy="96" r="11"/><path d="M97 96 C97 79 106 69 117 67 L117 75 C111 77 107 82 108 88 Z"/><circle cx="148" cy="96" r="11"/><path d="M137 96 C137 79 146 69 157 67 L157 75 C151 77 147 82 148 88 Z"/></g>
+<circle cx="128" cy="226" r="10" fill="#F5A623"/>
+<text x="300" y="150" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="124" letter-spacing="-3">
+<tspan font-weight="700" fill="#17324D">Cite</tspan><tspan font-weight="300" fill="#1A9E8F">Filter</tspan></text>
+<text x="304" y="204" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="30" fill="#5B6B7A" letter-spacing="1">papers and figures for your review, filtered</text>
+</svg>
