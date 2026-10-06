@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """CiteFilter desktop window: pick a draft and a Zotero CSV, run, open the report.
 
-Start:  macOS: open CiteFilter.app or double-click CiteFilter.command
-        Windows: double-click CiteFilter.bat (after setup_windows.bat) or the installed CiteFilter
+Start:  Windows: double-click CiteFilter.bat (after setup_windows.bat) or the installed CiteFilter
         any system: python3 citefilter_ui.py
 All the work is done by zotero_filter.py; this file is only the window.
 """

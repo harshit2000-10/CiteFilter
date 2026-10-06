@@ -78,6 +78,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$GITHUB_REF_NAME" --title "CiteFilter $GITHUB_REF_NAME" \
-            --notes "Windows installers. Not code-signed: Windows SmartScreen will warn (More info > Run anyway). lite = without the local model libraries; full = with them. See README_WINDOWS.md." \
+            --notes "Windows installers. Not code-signed: Windows SmartScreen will warn (More info > Run anyway). lite = without the local model libraries; full = with them. See the README." \
             2>/dev/null || true
           gh release upload "$GITHUB_REF_NAME" "dist/CiteFilter-Setup-${{ matrix.edition }}.exe" --clobber
