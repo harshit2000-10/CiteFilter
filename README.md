@@ -34,7 +34,11 @@ Early and lightly tested. Please read before relying on it.
 
 ### Windows
 
-Download `CiteFilter-for-Windows.zip` from this repository and follow [README_WINDOWS.md](README_WINDOWS.md).
+Installer: get `CiteFilter-Setup-lite.exe` (or `-full`, with the local model libraries) from the
+[Releases page](https://github.com/harshit2000-10/CiteFilter/releases), when a release is listed there.
+Windows will show a SmartScreen warning because the installer is not code-signed: "More info" > "Run anyway".
+
+From source instead: download `CiteFilter-for-Windows.zip` from this repository and follow [README_WINDOWS.md](README_WINDOWS.md).
 
 ### macOS / Linux, from source
 
@@ -77,4 +81,5 @@ through `transformers` and `adapters`.
 
 ## Licence
 
-No licence has been chosen yet, so the usual copyright rules apply until one is added.
+MIT, see [LICENSE](LICENSE). Software CiteFilter relies on keeps its own licence; see
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Poppler in particular is GPL and is run as a separate program.

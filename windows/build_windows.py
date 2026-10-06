@@ -26,6 +26,7 @@ def pyinstaller_args(lite):
     args = ["--noconfirm", "--clean", "--windowed", "--name", "CiteFilter",
             "--icon", str(ROOT / "logo" / "citefilter.ico"),
             *data("logo", "logo"), *data("poppler", "poppler"), *data("llm.env.example", "."),
+            *data("LICENSE", "."), *data("THIRD_PARTY_NOTICES.md", "."),
             "--collect-data", "docx"]
     if lite:
         for package in MODEL_PACKAGES:

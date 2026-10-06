@@ -1,0 +1,83 @@
+# Builds the Windows app and installer on a real Windows machine, after testing the tool there.
+# Run by hand from the Actions tab, or automatically when a version tag (v1.0.0) is pushed;
+# a tag also attaches the installers to a release.
+name: Windows build
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    name: ${{ matrix.edition }} edition
+    runs-on: windows-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        edition: [lite, full]
+    env:
+      EDITION_ARG: ${{ matrix.edition == 'lite' && 'lite' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up CiteFilter (the same script users run)
+        shell: cmd
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python windows\setup_windows.py %EDITION_ARG%
+
+      - name: Test a real run on Windows
+        shell: cmd
+        run: .venv\Scripts\python.exe windows\smoke_test.py
+
+      - name: Self-test from source
+        shell: cmd
+        run: .venv\Scripts\python.exe citefilter_ui.py --selftest selftest-source.txt && type selftest-source.txt
+
+      - name: Install Inno Setup
+        shell: cmd
+        run: choco install innosetup --no-progress -y
+
+      - name: Build the app and the installer
+        shell: cmd
+        run: python windows\build_windows.py %EDITION_ARG%
+
+      - name: Check the packaged app
+        shell: pwsh
+        run: |
+          $run = Start-Process -FilePath "dist\CiteFilter\CiteFilter.exe" -ArgumentList "--selftest", "selftest.txt" -Wait -PassThru
+          Get-Content selftest.txt
+          if ($run.ExitCode -ne 0) { Write-Error "packaged app self-test failed"; exit 1 }
+          if ("${{ matrix.edition }}" -eq "full" -and -not (Select-String -Path selftest.txt -Pattern "^torch \d" -Quiet)) {
+            Write-Error "full edition is missing the local model libraries"; exit 1
+          }
+
+      - name: Name the installer
+        shell: cmd
+        run: move dist\CiteFilter-Setup.exe dist\CiteFilter-Setup-${{ matrix.edition }}.exe
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CiteFilter-Setup-${{ matrix.edition }}
+          path: dist/CiteFilter-Setup-${{ matrix.edition }}.exe
+          if-no-files-found: error
+
+      - name: Attach to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --title "CiteFilter $GITHUB_REF_NAME" \
+            --notes "Windows installers. Not code-signed: Windows SmartScreen will warn (More info > Run anyway). lite = without the local model libraries; full = with them. See README_WINDOWS.md." \
+            2>/dev/null || true
+          gh release upload "$GITHUB_REF_NAME" "dist/CiteFilter-Setup-${{ matrix.edition }}.exe" --clobber

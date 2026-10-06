@@ -7,6 +7,8 @@ Start:  macOS: open CiteFilter.app or double-click CiteFilter.command
 All the work is done by zotero_filter.py; this file is only the window.
 """
 import contextlib
+import importlib
+import io
 import multiprocessing
 import os
 import queue
@@ -378,11 +380,32 @@ class App:
         self.root.after(100, self.poll)
 
 
+def selftest(report):
+    """Check a packaged app without opening a window: write what works to a file, exit 0 or 1."""
+    lines, ok = [], True
+    try:
+        with contextlib.redirect_stdout(io.StringIO()) as printed:
+            core.demo()
+        lines += [printed.getvalue().strip(), f"version {core.VERSION}", f"pdftotext: {core.tool('pdftotext')}"]
+        ok = bool(core.tool("pdftotext") and core.tool("pdftoppm"))
+    except Exception as err:
+        lines, ok = lines + [f"FAILED: {type(err).__name__}: {err}"], False
+    for name in ("torch", "transformers", "adapters"):  # only in the full edition
+        try:
+            lines.append(f"{name} {importlib.import_module(name).__version__}")
+        except Exception as err:
+            lines.append(f"{name}: not available ({type(err).__name__})")
+    Path(report).write_text("\n".join(lines) + "\n", encoding="utf-8")
+    sys.exit(0 if ok else 1)
+
+
 def main():
     multiprocessing.freeze_support()  # a packaged Windows app would otherwise keep relaunching itself
     for stream in ("stdout", "stderr"):  # a windowed app has no console, but libraries still write to these
         if getattr(sys, stream) is None:
             setattr(sys, stream, open(os.devnull, "w"))
+    if "--selftest" in sys.argv:
+        selftest((sys.argv[sys.argv.index("--selftest") + 1:] or ["selftest.txt"])[0])
     if sys.platform == "win32":
         import ctypes
 

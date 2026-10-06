@@ -36,7 +36,10 @@ def install_poppler(dest=ROOT / "poppler", releases=POPPLER_RELEASES, program="p
     found = sorted(dest.rglob(program)) if dest.is_dir() else []
     if found:
         return found[0].parent
-    request = urllib.request.Request(releases, headers={"User-Agent": "CiteFilter-setup"})
+    headers = {"User-Agent": "CiteFilter-setup"}
+    if os.environ.get("GITHUB_TOKEN") and releases.startswith("https://api.github.com/"):
+        headers["Authorization"] = "Bearer " + os.environ["GITHUB_TOKEN"]  # automated builds: avoids GitHub's anonymous limit
+    request = urllib.request.Request(releases, headers=headers)
     with urllib.request.urlopen(request, timeout=60) as response:
         release = json.load(response)
     asset = next((a for a in release.get("assets", []) if a["name"].lower().endswith(".zip")), None)
